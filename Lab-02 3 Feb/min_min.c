@@ -1,90 +1,116 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 #define min(a, b) (a < b) ? a : b
+struct process
+{
+    int pid;
+    int ct;
+    int comp;
+};
 
 int main()
 {
-    int p = 2, t;
-    printf("Enter the no of tasks: ");
-    scanf("%d", &t);
+    int n;
+    printf("Enter the no of processes ");
+    scanf("%d", &n);
 
-    int etm[p][t];
-    for (int i = 0; i < p; i++)
+    int etcMatrix[2][n];
+    struct process p[n];
+
+    for (int i = 0; i < n; i++)
     {
-        for (int j = 0; j < t; j++)
-        {
-            scanf("%d", &etm[i][j]);
-        }
-    }
-    int total_time[2] = {0, 0};
-
-    int min_t[t];
-    int ind_t[t];
-    int flag[t];
-
-    // saare flag ko 0 kara
-    for (int i = 0; i < t; i++)
-    {
-        flag[i] = 0;
+        printf("Enter the ETC for process %d on processor 1 ", i + 1);
+        scanf("%d", &etcMatrix[0][i]);
+        printf("Enter the ETC for process %d on processor 2 ", i + 1);
+        scanf("%d", &etcMatrix[1][i]);
+        p[i].comp = 0;
     }
 
-    int done_task = 0;
-    while (done_task < t)
+    int arr1[n], arr2[n];
+    for (int i = 0; i < n; i++)
     {
-        // minimum task with process index nikala
-        for (int i = 0; i < t; i++)
+        arr1[i] = -1;
+        arr2[i] = -1;
+    }
+    int j = 0, k = 0, l = 0;
+
+    while (j < n)
+    {
+        for (int i = 0; i < n; i++)
         {
-            if(flag[i]==0){
-                min_t[i] = min(etm[0][i], etm[1][i]);
-                if (etm[0][i] < etm[1][i])
-                    ind_t[i] = 0;
+            if (p[i].comp == 0)
+            {
+                if (etcMatrix[0][i] < etcMatrix[1][i])
+                {
+                    p[i].pid = 1;
+                    p[i].ct = etcMatrix[0][i];
+                }
                 else
-                    ind_t[i] = 1;
-
-                printf("%d - %d", ind_t[i], min_t[i]);
-                printf("\n");
+                {
+                    p[i].pid = 2;
+                    p[i].ct = etcMatrix[1][i];
+                }
+            }
+        }
+        int flagCompleted = 1;
+        int minCT = 999999;
+        int index = -1;
+        for (int i = 0; i < n; i++)
+        {
+            if (p[i].comp == 0)
+            {
+                flagCompleted = 0;
+                minCT = min(minCT, p[i].ct);
+                if (minCT == p[i].ct)
+                {
+                    index = i;
+                }
+            }
+        }
+        if (flagCompleted == 1)
+        {
+            break;
+        }
+        else
+        {
+            p[index].comp = 1;
+            if (p[index].pid == 1)
+            {
+                arr1[k++] = index + 1;
+                for (int i = 0; i < n; i++)
+                {
+                    if (p[i].comp == 0)
+                    {
+                        etcMatrix[0][i] += minCT;
+                    }
+                }
             }
             else
-                continue;
-        }
-        done_task++;
-
-        // flag wala
-        int minm = 99999;
-        for(int i=0; i<t; i++){
-            minm = min(min_t[i], minm);
-        }
-
-        for(int i=0; i<t; i++){
-            if(minm == min_t[i]){
-                flag[i] = 1;
+            {
+                arr2[l++] = index + 1;
+                for (int i = 0; i < n; i++)
+                {
+                    if (p[i].comp == 0)
+                    {
+                        etcMatrix[1][i] += minCT;
+                    }
+                }
             }
         }
-
-
-        // ab minimum task ko assign karunga
-        int min_task[2] = {10000, 10000};
-
-        for (int i = 0; i < t; i++)
-        {
-            if(min_task[ind_t[i]] < min_t[i]){
-                min_task[ind_t[i]] = min_task[ind_t[i]];
-            
-            }            
-            else{
-                min_task[ind_t[i]] = min_t[i];
-            }
-        }
-
-        printf("Min Task of P1: %d\n", min_task[0]);
-        printf("Min Task of P2: %d\n", min_task[1]);
-        printf("\n");
-
-        min_task[0] = 10000;
-        min_task[1] = 10000;
-        printf("\n Flag: ");
-        for(int i=0; i<t; i++){
-            printf("%d, ", flag[i]);
-        }
+        j++;
     }
+
+    printf("The order of processes on processor 1 is ");
+    for (int i = 0; i < k; i++)
+    {
+        printf("%d ", arr1[i]);
+    }
+    printf("\n");
+    printf("The order of processes on processor 2 is ");
+    for (int i = 0; i < l; i++)
+    {
+        printf("%d ", arr2[i]);
+    }
+    printf("\n");
+    return 0;
 }

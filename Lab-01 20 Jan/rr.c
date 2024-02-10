@@ -91,7 +91,7 @@ int main()
         scanf("%d", &p[i].at);
         printf("Enter Burst time: ");
         scanf("%d", &p[i].bt);
-        p[i].pid = i+1;
+        p[i].pid = i + 1;
         p[i].visited = 0;
         p[i].remain_bt = p[i].bt;
     }
